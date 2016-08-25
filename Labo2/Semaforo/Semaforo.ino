@@ -1,21 +1,21 @@
 /*
-Esteban Vargas Arrieta  A96486          
-Ignacio Picado Vargas A94781 
+  Esteban Vargas Arrieta  A96486
+  Ignacio Picado Vargas A94781
 */
-//Se incluye la libreraia TimerOne que nos permitira trabajar con timers
-#include <TimerOne.h>
 
 // Variables
 // Variable que almacena el estado del boton
 int buttonState = 0;
 //variable que almacena el estado del boton
-int lastButonState = 0;
+int lastButtonState = 0;
 // Variables de tiempo en segundos
 long diez = 10000;
 long tres = 3000;
 long dos = 2000;
+long refMillis = 0;
+unsigned long currentMillis = 0;
+long rebote = 1000;
 unsigned long preMillis = 0;
-unsigned long currentMillis;
 
 
 // Variables para los leds de los semaforos
@@ -25,40 +25,110 @@ int amarilloC = 11;
 int rojoC = 10;
 int verdeP = 9;
 int rojoP = 8;
+
+
 void setup() {
   //Se definen los I/O
-  pinMode(verdeC,OUTPUT);
-  pinMode(amarilloC,OUTPUT);
-  pinMode(rojoC,OUTPUT);
-  pinMode(verdeP,OUTPUT);
-  pinMode(rojoP,OUTPUT);
-  pinMode(boton,INPUT);
+  pinMode(verdeC, OUTPUT);
+  pinMode(amarilloC, OUTPUT);
+  pinMode(rojoC, OUTPUT);
+  pinMode(verdeP, OUTPUT);
+  pinMode(rojoP, OUTPUT);
+  pinMode(boton, INPUT);
 }
 
 void loop() {
   // Se setea el estado inicial del semaforo en caso de que nadie haya presionado el boton
-  digitalWrite(verdeC,HIGH);
-  digitalWrite(rojoP,HIGH);
+  digitalWrite(verdeC, HIGH);
+  digitalWrite(rojoP, HIGH);
   digitalWrite(amarilloC,LOW);
   digitalWrite(rojoC,LOW);
   digitalWrite(verdeP,LOW);
+  
   //Se lee si se ha presionado el boton del semaforo
   buttonState = digitalRead(boton);
+  
   //Si el boton se presiona se ejecuta el siguiente codigo
-  if(buttonState != lastButtonState) {
+  if (buttonState != lastButtonState) {
     currentMillis = millis();
-    //Se cuentan los primeros diez segundos antes de entrar a parpadear
-    while(currentMillis - preMillis > diez){
-      digitalWrite(verdeC,HIGH);
-      digitalWrite(rojoP,HIGH);
+    
+    if ((currentMillis - preMillis) > rebote) {
       preMillis = currentMillis;
-    }
-    //Actualizo los timers para el siguiente lazo
-    preMillis = 0;
-    currentMillis = millis()
-    while(currentMillis - preMillis > tres){
-      digitalWrite(verdeC,LOW)
+      refMillis = millis();
+      
+      //Se cuentan los primeros diez segundos antes de entrar a parpadear
+      while ((millis() - refMillis) < diez) {
+        digitalWrite(verdeC, HIGH);
+        digitalWrite(rojoP, HIGH);
+      }
+      
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+      
+      //Se entra al estado de parpadear la luz verde
+      while ((millis() - refMillis) < tres) {
+        digitalWrite(verdeC, LOW);
+        delay(500);
+        digitalWrite(verdeC, HIGH);
+        delay(500);
+      }
+      
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+
+      //Se entra al estado de encender la luz amarilla y apagar la verde
+      while((millis() - refMillis) < dos){
+        digitalWrite(verdeC,LOW);
+        digitalWrite(amarilloC, HIGH);
+      }
+      
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+      
+      //Entra al estado de parpadear el led amarillo
+      while((millis() - refMillis) < tres){
+        digitalWrite(amarilloC, LOW);
+        delay(500);
+        digitalWrite(amarilloC, HIGH);
+        delay(500);
+      }
+      
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+      
+      //Entra al estado de encender el la luz roja del semaforo de vehiculos
+      digitalWrite(amarilloC, LOW);
+      digitalWrite(rojoC, HIGH);
+      //Se espera segundo antes de proceder a encender la luz verde del peatonal, esto por seguridad de los peatones ante una infraccion por parte de un vehiculo
+      delay(1000);
+       
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+      
+      //Entra al estado de encender la luz verde del semaforo
+      while((millis() - refMillis) < diez){
+        digitalWrite(rojoP, LOW);
+        digitalWrite(verdeP, HIGH);
+      }
+
+      //Actualizo el tiempo de referencia
+      refMillis = millis();
+
+      //Entra al estado de parpadear la luz verde del paso peatonal
+      while((millis() - refMillis) < tres){
+        digitalWrite(verdeP, LOW);
+        delay(500);
+        digitalWrite(verdeP,HIGH);
+        delay(500);
+      }
+      //Entra al estado de poner la luz del semaforo peatonal en rojo y esperar un segundo antes de encender la luz verde del semaforo vehicular
+      digitalWrite(verdeP, LOW);
+      digitalWrite(rojoP, HIGH);
+      delay(1000);
     }
   }
-
+  // Actualiza el ultimo estado del boton de modo que no se repita el if hasta recibir una nueva pulzacion
+  lastButtonState = 0;
+  buttonState = 0;
 }
+
