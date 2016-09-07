@@ -25,7 +25,7 @@ int amarilloC = 11;
 int rojoC = 10;
 int verdeP = 9;
 int rojoP = 8;
-
+const int alarma =5;
 
 void setup() {
   //Se definen los I/O
@@ -35,6 +35,7 @@ void setup() {
   pinMode(verdeP, OUTPUT);
   pinMode(rojoP, OUTPUT);
   pinMode(boton, INPUT);
+  pinMode(alarma, OUTPUT);
 }
 
 void loop() {
@@ -77,21 +78,12 @@ void loop() {
       refMillis = millis();
 
       //Se entra al estado de encender la luz amarilla y apagar la verde
-      while((millis() - refMillis) < dos){
+      while((millis() - refMillis) < tres){
         digitalWrite(verdeC,LOW);
         digitalWrite(amarilloC, HIGH);
       }
       
-      //Actualizo el tiempo de referencia
-      refMillis = millis();
-      
-      //Entra al estado de parpadear el led amarillo
-      while((millis() - refMillis) < tres){
-        digitalWrite(amarilloC, LOW);
-        delay(500);
-        digitalWrite(amarilloC, HIGH);
-        delay(500);
-      }
+
       
       //Actualizo el tiempo de referencia
       refMillis = millis();
@@ -109,20 +101,29 @@ void loop() {
       while((millis() - refMillis) < diez){
         digitalWrite(rojoP, LOW);
         digitalWrite(verdeP, HIGH);
-      }
+        tone(alarma, 600, 250);
+        delay(500);
+        noTone(alarma);
+        delay(500);
+}
 
+       digitalWrite(verdeP, LOW);
+       
       //Actualizo el tiempo de referencia
       refMillis = millis();
 
-      //Entra al estado de parpadear la luz verde del paso peatonal
+      //Entra al estado de parpadear la luz roja del paso peatonal
       while((millis() - refMillis) < tres){
-        digitalWrite(verdeP, LOW);
-        delay(500);
-        digitalWrite(verdeP,HIGH);
-        delay(500);
+        digitalWrite(rojoP, LOW);
+        tone(alarma, 600, 250);
+        delay(200);
+        digitalWrite(rojoP,HIGH);
+        noTone(alarma);
+        delay(200);
+
+        
       }
       //Entra al estado de poner la luz del semaforo peatonal en rojo y esperar un segundo antes de encender la luz verde del semaforo vehicular
-      digitalWrite(verdeP, LOW);
       digitalWrite(rojoP, HIGH);
       delay(1000);
     }
