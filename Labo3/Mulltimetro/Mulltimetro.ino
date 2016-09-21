@@ -14,6 +14,7 @@ int buttonState = LOW;
 // Los 100 es para obtener los datos en Voltios (V)
 float escala = 100;
 float lectura = 0;
+// preMillis y rebote son variables que se utilizan para controlar el rebote del botob
 unsigned long preMillis = 0;
 long rebote = 400;
 
@@ -22,6 +23,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(button, INPUT);
   pinMode(punta, INPUT);
+  // Se inicializa el estado del boton como apagado
   buttonState = LOW;
 }
 
@@ -30,10 +32,13 @@ void loop() {
      Si el estado anterior era HIGH procede procede a apagarlo y detener la toma de datos
   */
   if (digitalRead(button) == HIGH) {
+    // Se guarda el tiempo actual
     unsigned long currentMillis = millis();
+    // espera hasta que el tiempo actual menos premillis sea mayor que rebote para ingresar al if
     if ((currentMillis - preMillis) >= rebote) {
       if (buttonState == LOW) {
         buttonState = HIGH;
+        // se toma el tiempo de referencia
         t_ref = millis();
       }
       else {
@@ -41,16 +46,24 @@ void loop() {
       }
     }
   }
+  //Este if se toma cuando el estado del boton esta en alto o encendido
   if (buttonState == HIGH) {
     // Se calcula el tiempo al que se toma el dato
     t_act = millis();
+    // se realiza la resta del tiempo actual menos el tiempo de referencia
     tiempo = (t_act - t_ref);
+    // Se lee el dato procedente del canal analoogico
     lectura = analogRead(punta);
+    // se mapea a un correspondiente valor de 0-500mV
     lectura = map(lectura, 0, 1023, 0, 500);
+    // Se divide entre 100 para obtener el voltaje directamente en V
     float voltaje = (lectura / escala);
+    // Se imprime en consola el tiempo al que se tomoo el dato
     Serial.print(tiempo);
     Serial.write("\t");
+    //Se imprime el valor obtenido
     Serial.println(voltaje);
+
   }
   delay(100);
 }
