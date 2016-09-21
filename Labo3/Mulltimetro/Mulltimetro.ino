@@ -46,22 +46,17 @@ void loop() {
       }
     }
   }
-  //Este if se toma cuando el estado del boton esta en alto o encendido
+  //Este if se toma cuando el estado del boton es encendido encendido
   if (buttonState == HIGH) {
-    // Se calcula el tiempo al que se toma el dato
     t_act = millis();
-    // se realiza la resta del tiempo actual menos el tiempo de referencia
     tiempo = (t_act - t_ref);
-    // Se lee el dato procedente del canal analoogico
     lectura = analogRead(punta);
     // se mapea a un correspondiente valor de 0-500mV
     lectura = map(lectura, 0, 1023, 0, 500);
     // Se divide entre 100 para obtener el voltaje directamente en V
     float voltaje = (lectura / escala);
-    // Se imprime en consola el tiempo al que se tomoo el dato
     Serial.print(tiempo);
     Serial.write("\t");
-    //Se imprime el valor obtenido
     Serial.println(voltaje);
 
   }
