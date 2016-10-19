@@ -12,7 +12,7 @@ PID myPID(&Input, &Output, &Setpoint,5,0,0, REVERSE);
 void setup() {
   Serial.begin(9600);
   Input = analogRead(0);
-  Setpoint = 1;
+  Setpoint = 25;
   //Se enciende el PID
   myPID.SetMode(AUTOMATIC);
 }
